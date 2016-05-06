@@ -2,15 +2,19 @@ package com.fondesa.recyclerviewdivider;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.ColorInt;
 import android.support.annotation.IntDef;
+import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.View;
 
 import com.fondesa.recyclerviewdivider.factories.DrawableFactory;
@@ -186,6 +190,8 @@ public class RecyclerViewDivider extends RecyclerView.ItemDecoration {
         private Integer color;
         @ColorInt
         private Drawable drawable;
+        @LayoutRes
+        private Integer layout;
         private Integer tint;
         private int size;
         private int marginSize;
@@ -260,6 +266,12 @@ public class RecyclerViewDivider extends RecyclerView.ItemDecoration {
         public Builder drawable(@NonNull Drawable drawable) {
             this.drawable = drawable;
             type = TYPE_DRAWABLE;
+            return this;
+        }
+
+        public Builder layout(@LayoutRes int layout) {
+            this.layout = layout;
+            type = TYPE_LAYOUT;
             return this;
         }
 
@@ -427,6 +439,24 @@ public class RecyclerViewDivider extends RecyclerView.ItemDecoration {
                                     currDrawable = drawable;
                                 }
                                 break;
+                            case TYPE_LAYOUT:
+                                if (layout != null) {
+                                    View view = LayoutInflater.from(context).inflate(layout, null);
+                                    view.setDrawingCacheEnabled(true);
+
+                                    int measureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+                                    view.measure(measureSpec, measureSpec);
+
+                                    view.layout(0, 0, view.getMeasuredWidth(), view.getMeasuredHeight());
+
+                                    view.buildDrawingCache(true);
+                                    Bitmap realBitmap = Bitmap.createBitmap(view.getDrawingCache());
+                                    view.setDrawingCacheEnabled(false);
+
+                                    currDrawable = new BitmapDrawable(context.getResources(), realBitmap);
+                                }
+
+                                break;
                         }
                         if (currDrawable == null) {
                             drawableFactory = DrawableFactory.getDefault(context);
@@ -477,6 +507,7 @@ public class RecyclerViewDivider extends RecyclerView.ItemDecoration {
     private static final int TYPE_SPACE = -1;
     private static final int TYPE_COLOR = 0;
     private static final int TYPE_DRAWABLE = 1;
+    private static final int TYPE_LAYOUT = 2;
 
     /**
      * Source annotation used to define different dividers' types.
@@ -486,7 +517,7 @@ public class RecyclerViewDivider extends RecyclerView.ItemDecoration {
      * <li><b>TYPE_DRAWABLE</b>: divider with a drawable resource</li>
      * </ul>
      */
-    @IntDef({TYPE_SPACE, TYPE_COLOR, TYPE_DRAWABLE})
+    @IntDef({TYPE_SPACE, TYPE_COLOR, TYPE_DRAWABLE, TYPE_LAYOUT})
     @Retention(RetentionPolicy.SOURCE)
     private @interface Type {
     }

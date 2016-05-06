@@ -37,12 +37,7 @@ public class MainActivity extends AppCompatActivity {
 
         firstDivider = RecyclerViewDivider.with(this)
                 .addTo(mFirstRecyclerView)
-                .visibilityFactory(new VisibilityFactory() {
-                    @Override
-                    public boolean displayDividerForItem(int listSize, int position) {
-                        return false;
-                    }
-                })
+                .layout(R.layout.dummy_layout)
                 .build();
 
         firstDivider.attach();
