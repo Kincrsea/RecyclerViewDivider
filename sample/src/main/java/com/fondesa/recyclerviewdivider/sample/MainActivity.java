@@ -57,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
         secondDivider = RecyclerViewDivider.with(this)
                 .color(Color.BLACK)
                 .size(6)
+                .marginSize(30)
                 .build();
 
         secondDivider.addTo(mSecondRecyclerView);

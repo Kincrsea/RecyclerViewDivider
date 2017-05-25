@@ -17,7 +17,9 @@
 package com.fondesa.recyclerviewdivider.factories;
 
 import android.content.Context;
+import android.graphics.Rect;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.RecyclerView;
 
 import com.fondesa.recycler_view_divider.R;
 
@@ -65,21 +67,14 @@ public abstract class MarginFactory {
      *                   The groupIndex is equal to the item position when the span count is 1 (e.g. LinearLayoutManager).
      * @return right/left margin with horizontal divider or top/bottom margin with vertical divider
      */
-    public abstract int marginSizeForItem(int groupCount, int groupIndex);
+    public abstract Rect marginSizeForItem(int orientation, int groupCount, int groupIndex);
 
     /**
      * Default instance of a {@link MarginFactory}
      */
-    private static class Default extends MarginFactory {
-        private final int defaultMarginSize;
-
+    private static class Default extends General {
         Default(Context context) {
-            defaultMarginSize = context.getResources().getDimensionPixelSize(R.dimen.recycler_view_divider_margin_size);
-        }
-
-        @Override
-        public int marginSizeForItem(int groupCount, int groupIndex) {
-            return defaultMarginSize;
+            super(context.getResources().getDimensionPixelSize(R.dimen.recycler_view_divider_margin_size));
         }
     }
 
@@ -89,13 +84,21 @@ public abstract class MarginFactory {
     private static class General extends MarginFactory {
         private final int marginSize;
 
-        General(int marginSize) {
+        private General(int marginSize) {
             this.marginSize = marginSize;
         }
 
         @Override
-        public int marginSizeForItem(int groupCount, int groupIndex) {
-            return marginSize;
+        public Rect marginSizeForItem(int orientation, int groupCount, int groupIndex) {
+            Rect rect = new Rect();
+            if (orientation == RecyclerView.VERTICAL) {
+                rect.left = marginSize;
+                rect.right = marginSize;
+            } else {
+                rect.top = marginSize;
+                rect.bottom = marginSize;
+            }
+            return rect;
         }
     }
 }
